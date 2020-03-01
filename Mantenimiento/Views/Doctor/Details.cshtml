@@ -1,0 +1,63 @@
+﻿@model Mantenimiento.Models.Doctor
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+
+
+<div>
+    <h4>Doctor</h4>
+    <hr />
+    
+    <div class="card border-primary mb-3">
+        <div class="card-header">Detalles</div>
+        <div class="card-body text-primary">
+            <dl class="row">
+        
+    
+
+                <div class="col-md-4">
+
+                    <dt class="col-sm-6">
+                        @Html.DisplayNameFor(model => model.Telefono)
+                    </dt>
+                    <dd class="col-sm-6">
+                        @Html.DisplayFor(model => model.Telefono)
+                    </dd>
+                    <dt class="col-sm-6">
+                        @Html.DisplayNameFor(model => model.Nombre)
+                    </dt>
+                    <dd class="col-sm-6">
+                        @Html.DisplayFor(model => model.Nombre)
+                    </dd>
+                </div>
+
+                <div class="col-md-4">
+                    <dt class="col-sm-6">
+                        @Html.DisplayNameFor(model => model.Correo)
+                    </dt>
+                    <dd class="col-sm-6">
+                        @Html.DisplayFor(model => model.Correo)
+                    </dd>
+                    <dt class="col-sm-6">
+                        @Html.DisplayNameFor(model => model.FechaNacimiento)
+                    </dt>
+                    <dd class="col-sm-6">
+                        @Html.DisplayFor(model => model.FechaNacimiento)
+                    </dd>
+                </div>
+
+                <div class="col-md-4">
+                </div>
+
+
+            </dl>
+        </div>
+    </div>
+    
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>

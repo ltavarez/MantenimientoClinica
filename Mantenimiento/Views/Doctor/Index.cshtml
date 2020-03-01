@@ -1,0 +1,81 @@
+﻿@model IEnumerable<Mantenimiento.Models.Doctor>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+
+<div class="row">
+    <div class="card mb-3 col-md-12" >
+        <div class="bg-success text-white card-header">Listado - Doctores</div>
+        <div class="card-body">
+            <p>
+                <a class="btn btn-primary" asp-action="Create"> <i style="font-size: 20px;" class="fa fa-plus" aria-hidden="true"></i> Crear</a>
+            </p>
+            
+            <div class="row">
+                
+                <form method="get" asp-action="Index" class="form-inline">
+                    <label class="sr-only" for="inlineFormInputName2">Nombre</label>
+                    <input type="text" name="nombreDoctor" class="form-control mb-2 mr-sm-2" id="inlineFormInputName2" placeholder="Nombre del doctor">
+
+                 
+
+               
+                    <button type="submit" class="btn btn-primary mb-2"><i style="font-size: 20px;" class="fa fa-search" aria-hidden="true"></i>  Buscar</button>
+                </form>
+
+            </div>
+
+                <div class="table-responsive">
+                    <table class="table table-striped table-dark table-bordered table-hover ">
+                        <thead class="">
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Telefono)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Nombre)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Correo)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.FechaNacimiento)
+                            </th>
+                            <th>Opciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Telefono)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Nombre)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Correo)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.FechaNacimiento)
+                                </td>
+                                <td>
+                                    <a class="btn btn-warning" asp-action="Edit" asp-route-id="@item.Id"> <i class="fa fa-pencil-square-o" aria-hidden="true"></i> Editar</a> |
+                                    <a class="btn btn-info" asp-action="Details" asp-route-id="@item.Id"><i class="fa fa-info-circle" aria-hidden="true"></i> Details</a> |
+                                    <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id"> <i class="fa fa-trash-o" aria-hidden="true"></i> Delete</a>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+</div>
+
+
+
