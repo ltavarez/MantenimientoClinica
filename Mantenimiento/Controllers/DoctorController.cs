@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Mantenimiento.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -10,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Mantenimiento.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.FileProviders;
 
 namespace Mantenimiento.Controllers
 {
@@ -18,11 +20,15 @@ namespace Mantenimiento.Controllers
     {
         private readonly ConsultorioMedicoContext _context;
         private readonly IHostingEnvironment hostingEnvironment;
+        private readonly IMapper _mapper;
 
-        public DoctorController(ConsultorioMedicoContext context,IHostingEnvironment hostingEnvironment)
+
+        public DoctorController(ConsultorioMedicoContext context,IHostingEnvironment hostingEnvironment, IMapper mapper)
         {
             _context = context;
             this.hostingEnvironment = hostingEnvironment;
+            this._mapper = mapper;
+
         }
 
         // GET: Doctor
@@ -88,11 +94,10 @@ namespace Mantenimiento.Controllers
 
                     if (filePath != null) model.Photo.CopyTo(new FileStream(filePath, mode: FileMode.Create));
                 }
+             
 
-                doctor.Nombre = model.Nombre;
-                doctor.Correo = model.Correo;
-                doctor.Telefono = model.Telefono;
-                doctor.FechaNacimiento = model.FechaNacimiento;
+                 doctor = _mapper.Map<Doctor>(model);
+
                 doctor.ProfilePhoto = uniqueName;
 
                 _context.Add(doctor);
@@ -115,7 +120,10 @@ namespace Mantenimiento.Controllers
             {
                 return NotFound();
             }
-            return View(doctor);
+
+
+            var doctorDto = _mapper.Map<DoctorDto>(doctor);
+            return View(doctorDto);
         }
 
         // POST: Doctor/Edit/5
@@ -123,9 +131,9 @@ namespace Mantenimiento.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Telefono,Nombre,Correo,FechaNacimiento")] Doctor doctor)
+        public async Task<IActionResult> Edit(int id, DoctorDto dto)
         {
-            if (id != doctor.Id)
+            if (id != dto.Id)
             {
                 return NotFound();
             }
@@ -134,12 +142,41 @@ namespace Mantenimiento.Controllers
             {
                 try
                 {
+                    var doctor = await _context.Doctor.FirstOrDefaultAsync(d => d.Id == dto.Id);
+                    
+                    string uniqueName = null;
+                    if (dto.Photo != null)
+                    {
+                        var folderPath = Path.Combine(hostingEnvironment.WebRootPath, "images");
+                        uniqueName = Guid.NewGuid().ToString() + "_" + dto.Photo.FileName;
+                        var filePath = Path.Combine(folderPath, uniqueName);
+
+                        var filePathDelete = Path.Combine(folderPath, doctor.ProfilePhoto);
+
+                        if (!string.IsNullOrEmpty(doctor.ProfilePhoto))
+                        {
+                            if (System.IO.File.Exists(filePathDelete))
+                            {
+                                var fileInfo = new System.IO.FileInfo(filePathDelete);
+                                fileInfo.Delete();
+                            }
+                        }
+
+                        if (filePath != null) dto.Photo.CopyTo(new FileStream(filePath, mode: FileMode.Create));
+                    }
+
+                    doctor.Nombre = dto.Nombre;
+                    doctor.Correo = dto.Correo;
+                    doctor.Telefono = dto.Telefono;
+                    doctor.FechaNacimiento = dto.FechaNacimiento;
+                    doctor.ProfilePhoto = uniqueName;
+
                     _context.Update(doctor);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!DoctorExists(doctor.Id))
+                    if (!DoctorExists(dto.Id))
                     {
                         return NotFound();
                     }
@@ -150,7 +187,7 @@ namespace Mantenimiento.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(doctor);
+            return View(dto);
         }
 
         // GET: Doctor/Delete/5
