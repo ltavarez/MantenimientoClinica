@@ -19,6 +19,8 @@ namespace Mantenimiento.Models
         [Required(ErrorMessage = "Este campo es necesario")]
         public string Nombre { get; set; }
         public string Correo { get; set; }
+        public string ProfilePhoto { get; set; }
+
         public DateTime FechaNacimiento { get; set; }
 
         public virtual ICollection<DoctorEspecialidad> DoctorEspecialidad { get; set; }

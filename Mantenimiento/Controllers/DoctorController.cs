@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Mantenimiento.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Mantenimiento.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Mantenimiento.Controllers
 {
@@ -14,10 +17,12 @@ namespace Mantenimiento.Controllers
     public class DoctorController : Controller
     {
         private readonly ConsultorioMedicoContext _context;
+        private readonly IHostingEnvironment hostingEnvironment;
 
-        public DoctorController(ConsultorioMedicoContext context)
+        public DoctorController(ConsultorioMedicoContext context,IHostingEnvironment hostingEnvironment)
         {
             _context = context;
+            this.hostingEnvironment = hostingEnvironment;
         }
 
         // GET: Doctor
@@ -68,15 +73,33 @@ namespace Mantenimiento.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Telefono,Nombre,Correo,FechaNacimiento")] Doctor doctor)
+        public async Task<IActionResult> Create(DoctorDto model)
         {
+            var doctor = new Doctor();
             if (ModelState.IsValid)
             {
+
+                string uniqueName = null;
+                if (model.Photo != null)
+                {
+                    var folderPath = Path.Combine(hostingEnvironment.WebRootPath, "images");
+                    uniqueName = Guid.NewGuid().ToString() + "_" + model.Photo.FileName;
+                    var filePath = Path.Combine(folderPath, uniqueName);
+
+                    if (filePath != null) model.Photo.CopyTo(new FileStream(filePath, mode: FileMode.Create));
+                }
+
+                doctor.Nombre = model.Nombre;
+                doctor.Correo = model.Correo;
+                doctor.Telefono = model.Telefono;
+                doctor.FechaNacimiento = model.FechaNacimiento;
+                doctor.ProfilePhoto = uniqueName;
+
                 _context.Add(doctor);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(doctor);
+            return View(model);
         }
 
         // GET: Doctor/Edit/5

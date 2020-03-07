@@ -43,12 +43,18 @@
                             <th>
                                 @Html.DisplayNameFor(model => model.FechaNacimiento)
                             </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.ProfilePhoto)
+                            </th>
                             <th>Opciones</th>
                         </tr>
                         </thead>
                         <tbody>
                         @foreach (var item in Model)
                         {
+
+                            var photoPath ="~/images/" + ((!string.IsNullOrEmpty(item.ProfilePhoto) ? item.ProfilePhoto : "nophoto.png" ));
+
                             <tr>
                                 <td>
                                     @Html.DisplayFor(modelItem => item.Telefono)
@@ -61,6 +67,9 @@
                                 </td>
                                 <td>
                                     @Html.DisplayFor(modelItem => item.FechaNacimiento)
+                                </td>
+                                <td>
+                                    <img style="width: 200px;height: 200px" src="@photoPath" alt="Alternate Text" asp-append-version="true" />
                                 </td>
                                 <td>
                                     <a class="btn btn-warning" asp-action="Edit" asp-route-id="@item.Id"> <i class="fa fa-pencil-square-o" aria-hidden="true"></i> Editar</a> |
