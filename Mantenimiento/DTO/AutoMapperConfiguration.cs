@@ -22,7 +22,9 @@ namespace Mantenimiento.DTO
 
             CreateMap<DoctorDto, Doctor>();
 
-            CreateMap<Doctor, DoctorDto>().ForMember(dest => dest.Photo, opt => opt.Ignore()); ;
+            CreateMap<Doctor, DoctorDto>().ForMember(dest => dest.Photo, opt => opt.Ignore());
+                
+
         }
     }
 }

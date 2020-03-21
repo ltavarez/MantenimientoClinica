@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Mantenimiento.Models;
 using AutoMapper;
 using Mantenimiento.DTO;
+using Mantenimiento.Mail;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -30,6 +31,12 @@ namespace Mantenimiento
         public void ConfigureServices(IServiceCollection services)
         {
 
+            var emailConfig = Configuration.GetSection("EmailConfiguration")
+                .Get<EmailConfiguration>();
+
+            services.AddSingleton(emailConfig);
+
+            services.AddScoped<IEmailSender, EmailSenderGmail>();
 
             services.AddAutoMapper(typeof(AutomapperProfile).GetTypeInfo().Assembly);
 
@@ -50,8 +57,9 @@ namespace Mantenimiento
                
                 .AddDefaultTokenProviders();
 
-          
 
+            services.AddDistributedMemoryCache();
+            services.AddSession(options => { options.IdleTimeout = TimeSpan.FromMinutes(120); });
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
@@ -71,7 +79,8 @@ namespace Mantenimiento
 
             app.UseStaticFiles();
             app.UseCookiePolicy();
-            
+
+            app.UseSession();
             app.UseAuthentication();
             app.UseMvc(routes =>
             {

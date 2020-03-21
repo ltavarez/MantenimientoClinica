@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Mantenimiento.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Mantenimiento.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 
 namespace Mantenimiento.Controllers
 {
@@ -14,6 +16,7 @@ namespace Mantenimiento.Controllers
     {
         public IActionResult Index()
         {
+            HttpContext.Session.SetString(Configuration.KeyNombre,"Prueba");
             return View();
         }
 

@@ -5,12 +5,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Mantenimiento.DTO;
+using Mantenimiento.Helpers;
+using Mantenimiento.Mail;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Mantenimiento.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.FileProviders;
 
 namespace Mantenimiento.Controllers
@@ -21,14 +24,15 @@ namespace Mantenimiento.Controllers
         private readonly ConsultorioMedicoContext _context;
         private readonly IHostingEnvironment hostingEnvironment;
         private readonly IMapper _mapper;
+        private readonly IEmailSender _emailSender;
 
 
-        public DoctorController(ConsultorioMedicoContext context,IHostingEnvironment hostingEnvironment, IMapper mapper)
+        public DoctorController(ConsultorioMedicoContext context,IHostingEnvironment hostingEnvironment, IMapper mapper,IEmailSender emailSender)
         {
             _context = context;
             this.hostingEnvironment = hostingEnvironment;
             this._mapper = mapper;
-
+            this._emailSender = emailSender;
         }
 
         // GET: Doctor
@@ -42,7 +46,13 @@ namespace Mantenimiento.Controllers
                 doctorList = _context.Doctor.Where(x => x.Nombre.Contains(nombreDoctor));
             }
 
+            ViewBag.NombreSession = HttpContext.Session.GetString(Configuration.KeyNombre);
+
             var list = await doctorList.ToListAsync();
+
+            var message = new Message(new string[] { "itlaprueba2@gmail.com" },"Test Email","Esto es una prueba");
+
+            await _emailSender.SendEmailAsync(message);
 
             return View(list);
         }
@@ -50,6 +60,9 @@ namespace Mantenimiento.Controllers
         // GET: Doctor/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+
+            HttpContext.Session.Clear();
+
             if (id == null)
             {
                 return NotFound();
@@ -58,7 +71,10 @@ namespace Mantenimiento.Controllers
             var doctor = await _context.Doctor
                 .FirstOrDefaultAsync(m => m.Id == id);
 
-           
+            ViewBag.Especialidades = await _context.Especialidad
+                .Where(x => x.DoctorEspecialidad.Any(d => d.IdDoctor == id)).ToListAsync();
+
+
 
             if (doctor == null)
             {
